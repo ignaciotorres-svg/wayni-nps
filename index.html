@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wayni · Tu opinión importa</title>
+  <title>Wayni Â· Tu opiniÃ³n importa</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -37,6 +37,23 @@
       border-radius: var(--radius); border: 1px solid var(--border);
       padding: 32px 28px; box-shadow: 0 2px 16px rgba(0,0,0,0.06);
     }
+    .steps {
+      display: flex; align-items: center; gap: 0; margin-bottom: 28px;
+    }
+    .step-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+      transition: background .3s, color .3s;
+    }
+    .step-dot.active  { background: var(--black); color: #fff; }
+    .step-dot.done    { background: var(--green); color: var(--black); }
+    .step-dot.pending { background: var(--border); color: var(--gray); }
+    .step-line {
+      flex: 1; height: 2px; background: var(--border);
+      transition: background .3s;
+    }
+    .step-line.done { background: var(--green); }
     .badge {
       display: inline-flex; align-items: center; gap: 6px;
       font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
@@ -54,6 +71,12 @@
     .score-of { font-size: 20px; color: var(--gray); font-weight: 400; }
     h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
     .subtitle { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 24px; }
+    .question-label {
+      font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 6px;
+    }
+    .question-sub {
+      font-size: 14px; color: var(--gray); margin-bottom: 24px; line-height: 1.5;
+    }
     .divider { height: 1px; background: var(--border); margin: 24px 0; }
     label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
     textarea {
@@ -64,6 +87,26 @@
     textarea:focus { border-color: var(--black); }
     textarea::placeholder { color: #AAA; }
     .char-count { font-size: 12px; color: #AAA; text-align: right; margin-top: 4px; }
+    .fcr-options { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+    .fcr-btn {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 18px; border-radius: 12px;
+      border: 1.5px solid var(--border); background: #fff;
+      cursor: pointer; font-size: 15px; font-weight: 600; font-family: inherit;
+      text-align: left; transition: border-color .2s, background .15s; color: var(--black);
+    }
+    .fcr-btn:hover { border-color: var(--black); background: var(--light); }
+    .fcr-icon { font-size: 22px; flex-shrink: 0; }
+    .ces-scale { display: flex; gap: 8px; margin-top: 4px; }
+    .ces-btn {
+      flex: 1; padding: 14px 6px; border-radius: 10px;
+      border: 1.5px solid var(--border); background: #fff;
+      cursor: pointer; font-size: 18px; font-weight: 800; font-family: inherit;
+      text-align: center; transition: border-color .2s, background .15s;
+      display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--black);
+    }
+    .ces-btn:hover { border-color: var(--black); background: var(--light); }
+    .ces-label { font-size: 10px; font-weight: 500; color: var(--gray); line-height: 1.2; }
     .btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 8px;
       width: 100%; padding: 15px 20px; margin-top: 16px;
@@ -110,26 +153,26 @@
 <body>
 <div class="header">
   <div class="logo">W.</div>
-  <span class="brand">Wayni</span>
+  <span class="brand">Wayno</span>
 </div>
 <div class="card" id="card">
   <div class="state-msg"><div class="spinner"></div>Cargando tu encuesta...</div>
 </div>
 <div class="footer">
-  Tu respuesta es confidencial y nos ayuda a mejorar.<br>
+  TU respuesta es confidencial y nos ayuda a mejorar.<br>
   &copy; 2026 Wayni &middot; <a href="https://wayni.com" style="color:#AAA">wayni.com</a>
 </div>
 
 <script>
-  // ── CONFIGURACIÓN ─────────────────────────────────────────────────────────
-  // Reemplazá esta URL con la de tu Google Apps Script desplegado
-  const WEBHOOK_URL   = "https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec";
-  const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.waynimovilwallet";
+  const WEBHOOK_URL = "https://script.google.com/macros/s/TU_DEPLOYMENT_ID/exec";
+  const STORE_URL   = "https://onelink.to/b4nrv9";
 
-  // ── Leer parámetros ───────────────────────────────────────────────────────
   const params = new URLSearchParams(window.location.search);
   const score  = parseInt(params.get("score"), 10);
   const ticket = params.get("ticket") || "";
+
+  let fcrRespuesta = null;
+  let cesScore     = null;
 
   function getSegmento(s) {
     if (s <= 6) return "detractor";
@@ -140,8 +183,10 @@
   async function enviarRespuesta(comentario) {
     const payload = {
       ticket_id:  ticket,
-      score:      score,
+      nps_score:  score,
       segmento:   getSegmento(score),
+      fcr:        fcrRespuesta,
+      ces:        cesScore,
       comentario: comentario || "",
       timestamp:  new Date().toISOString()
     };
@@ -151,10 +196,22 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload)
       });
-    } catch(e) { /* silencioso en prod */ }
+    } catch(e) {}
   }
 
   const card = document.getElementById("card");
+
+  function stepsHTML(ctive) {
+    function dotClass(n)  { return n < active ? "done" : n === active ? "active" : "pending"; }
+    function lineClass(n) { return n < active ? "done" : ""; }
+    return `<div class="steps">
+      <div class="step-dot ${dotClass(1)}">${active > 1 ? "&#10003;" : "1"}</div>
+      <div class="step-line ${lineClass(1)}"></div>
+      <div class="step-dot ${dotClass(2)}">${active > 2 ? "&#10003;" : "2"}</div>
+      <div class="step-line ${lineClass(2)}"></div>
+      <div class="step-dot ${dotClass(3)}">3</div>
+    </div>`;
+  }
 
   function render() {
     if (isNaN(score) || score < 0 || score > 10) {
@@ -165,26 +222,68 @@
       </div>`;
       return;
     }
+    renderStep1();
+  }
+
+  function renderStep1() {
+    card.innerHTML = stepsHTML(1) + `
+      <div class="question-label">&iquest;Resolvimos tu consulta en el primer contacto?</div>
+      <div class="question-sub">Es decir, sin necesidad de volver a comunicarte con nosotros.</div>
+      <div class="fcr-options">
+        <button class="fcr-btn" onclick="selectFCR('si')">
+          <span class="fcr-icon">&#10004;</span>
+          <span>S&iacute;, lo resolvieron en el primer contacto</span>
+        </button>
+        <button class="fcr-btn" onclick="selectFCR('no')">
+          <span class="fcr-icon">&#128260;</span>
+          <span>No, tuve que volver a comunicarme</span>
+        </button>
+      </div>`;
+  }
+  function selectFCR(value) {
+    fcrRespuesta = value;
+    renderStep2();
+  }
+
+  function renderStep2() {
+    const labels = ["", "Muy<br>dif&iacute;cil", "Dif&iacute;cil", "Neutral", "F&aacute;cil", "Muy<br>f&aacute;cil"];
+    let cesButtons = "";
+    for (let i = 1; i <= 5; i++) {
+      cesButtons += `<button class="ces-btn" onclick="selectCES(${i})">
+        <span>${i}</span>
+        <span class="ces-label">${labels[i]}</span>
+      </button>`;
+    }
+    card.innerHTML = stepsHTML(2) + `
+      <div class="question-label">&iquest;Qu&eacute; tan f&aacute;cil fue usar la app de Wayni?</div>
+      <div class="question-sub">Escal&aacute; del 1 (muy dif&iacute;cil) al 5 (muy f&aacute;cil).</div>
+      <div class="ces-scale">${cesButtons}</div>`;
+  }
+  function selectCES(value) {
+    cesScore = value;
+    renderStep3();
+  }
+
+  function renderStep3() {
     const seg = getSegmento(score);
     if (seg === "detractor") renderDetractor();
     else if (seg === "neutro") renderNeutro();
     else renderPromotor();
   }
 
-  // ─── DETRACTOR (0-6) ──────────────────────────────────────────────────────
   function renderDetractor() {
-    card.innerHTML = `
+    card.innerHTML = stepsHTML(3) + `
       <div class="badge detractor"><span class="dot"></span> Tu respuesta</div>
       <div class="score-display">
         <span class="score-num" style="color:#E53935">${score}</span>
         <span class="score-of">/10</span>
       </div>
       <h1>Lamentamos que tu experiencia no haya sido la esperada</h1>
-      <p class="subtitle">Tu opini&oacute;n es muy importante para nosotros.<br>
-      &iquest;Pod&eacute;s contarnos qu&eacute; ocurri&oacute; o qu&eacute; podr&iacute;amos mejorar?</p>
+      <p class="subtitle">Tu opin&iacute;n es muy importante para nosotros.<br>
+      &iquest;Pod&eacute;s contarnos qu&eacute; ocurri&iacute; o qu&eacute; podr&iacute;amos mejorar?</p>
       <div class="divider"></div>
       <label for="comentario">Tu comentario (opcional)</label>
-      <textarea id="comentario" maxlength="500" placeholder="Cont&aacute;nos qu&eacute; pas&oacute; o qu&eacute; esperabas que fuera diferente..."></textarea>
+      <textarea id="comentario" maxlength="500" placeholder="Cont&aacute;nos qu&eacute; pas&aacute; o qu&eacute; esperabas que fuera diferente..."></textarea>
       <div class="char-count"><span id="chars">0</span>/500</div>
       <button class="btn btn-primary" id="send-btn" onclick="submitDetractor()">Enviar respuesta</button>
       <button class="btn btn-outline" onclick="skipDetractor()">Prefiero no comentar</button>`;
@@ -203,13 +302,12 @@
     card.innerHTML = `<div class="success-card">
       <div class="success-icon">&#10003;</div>
       <h1>Gracias por contarnos</h1>
-      <p class="subtitle" style="margin-top:10px">Tu comentario qued&oacute; registrado en nuestro equipo.<br>
+      <p class="subtitle" style="margin-top:10px">Tu comentario qued&aacute; registrado en nuestro equipo.<br>
       Vamos a trabajar para mejorar tu experiencia.</p></div>`;
   }
 
-  // ─── NEUTRO (7-8) ─────────────────────────────────────────────────────────
   function renderNeutro() {
-    card.innerHTML = `
+    card.innerHTML = stepsHTML(3) + `
       <div class="badge neutro"><span class="dot"></span> Tu respuesta</div>
       <div class="score-display">
         <span class="score-num" style="color:#FB8C00">${score}</span>
@@ -217,13 +315,13 @@
       </div>
       <h1>&iexcl;Gracias por tu respuesta!</h1>
       <p class="subtitle">Seguimos trabajando d&iacute;a a d&iacute;a para mejorar tu experiencia.<br>
-      &iquest;Qu&eacute; nos falt&oacute; para ganarnos tu 10?</p>
+      &iquest;Qu&eacute; nos falt&aacute; para ganarnos tu 10?</p>
       <div class="divider"></div>
       <label for="mejora">Tu sugerencia (opcional)</label>
-      <textarea id="mejora" maxlength="500" placeholder="&iquest;Qu&eacute; podr&iacute;a haber sido mejor?"></textarea>
+      <textarea id="mejora" maxlength="500" placeholder="&quest;Qu&eacute; podr&iacute;a haber sido mejor?"></textarea>
       <div class="char-count"><span id="chars">0</span>/500</div>
       <button class="btn btn-primary" id="send-btn" onclick="submitNeutro()">Enviar sugerencia</button>
-      <button class="btn btn-outline" onclick="skipNeutro()">Solo dejar mi puntuaci&oacute;n</button>`;
+      <button class="btn btn-outline" onclick="skipNeutro()">Solo dejar mi puntuaci&iacute;n</button>`;
     document.getElementById("mejora").addEventListener("input", function() {
       document.getElementById("chars").textContent = this.value.length;
     });
@@ -239,28 +337,27 @@
     card.innerHTML = `<div class="success-card">
       <div class="success-icon">&#10003;</div>
       <h1>&iexcl;Gracias!</h1>
-      <p class="subtitle" style="margin-top:10px">Tu opini&oacute;n nos ayuda a mejorar cada d&iacute;a.<br>
-      Te invitamos a seguir usando Wayni.</p></div>`;
+      <p class="subtitle" style="margin-top:10px">Tu opin iacute;n nos ayuda a mejorar cada d&iacute;a.<br>
+      Te invitamos a seguir sundo Wayni.</p></div>`;
   }
 
-  // ─── PROMOTOR (9-10) ──────────────────────────────────────────────────────
   function renderPromotor() {
-    card.innerHTML = `
+    card.innerHTML = stepsHTML(3) + `
       <div class="badge promotor"><span class="dot"></span> Tu respuesta</div>
       <div class="score-display">
         <span class="score-num" style="color:#33691E">${score}</span>
         <span class="score-of">/10</span>
       </div>
-      <h1>&iexcl;Muchas gracias por tu valoraci&oacute;n!</h1>
+      <h1>&iexcl;Muchas gracias por tu valorac&iacute;n!</h1>
       <p class="subtitle">Nos alegra saber que tu experiencia fue positiva.<br>
       &iquest;Nos ayud&aacute;s a seguir creciendo con una rese&ntilde;a?</p>
       <div class="divider"></div>
       <p style="font-size:14px;font-weight:600;margin-bottom:4px">Es muy r&aacute;pido &darr;</p>
-      <a class="store-card" href="${PLAY_STORE_URL}" target="_blank">
-        <span class="store-icon">&#9654;</span>
+      <a class="store-card" href="${STORE_URL}" target="_blank" onclick="enviarRespuesta('')">
+        <span class="store-icon">&#11088;</span>
         <div>
-          <div class="store-label">Disponible en</div>
-          <div class="store-name">Google Play Store</div>
+          <div class="store-label">Dej&aacute; tu rese&ntilde;a en</div>
+          <div class="store-name">Play Store / App Store</div>
           <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
         </div>
       </a>
