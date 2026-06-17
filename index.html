@@ -171,6 +171,7 @@
   const params = new URLSearchParams(window.location.search);
   const score  = parseInt(params.get("score"), 10);
   const ticket = params.get("ticket") || "";
+  const agent  = params.get("agent")  || "";
 
   let fcrRespuesta = null;
   let cesScore     = null;
@@ -188,6 +189,7 @@
       segmento:   getSegmento(score),
       fcr:        fcrRespuesta,
       ces:        cesScore,
+      agente:     agent,
       comentario: comentario || "",
       timestamp:  new Date().toISOString()
     };
