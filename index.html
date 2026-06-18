@@ -3,380 +3,482 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wayni Â· Tu opiniÃ³n importa</title>
+  <title>Wayni – Tu opinión importa</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --green:  #C6FF00;
-      --black:  #0D0D0D;
-      --gray:   #555;
-      --light:  #F7F7F3;
-      --border: #E0E0D8;
-      --red:    #E53935;
-      --amber:  #FB8C00;
-      --radius: 14px;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: var(--light); color: var(--black);
-      min-height: 100vh; display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start; padding: 0 16px 40px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
-    .header {
-      width: 100%; max-width: 520px; display: flex;
-      align-items: center; gap: 10px; padding: 24px 0 20px;
-    }
-    .logo {
-      width: 42px; height: 42px; background: var(--green); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 900; font-size: 18px; letter-spacing: -1px; color: var(--black); flex-shrink: 0;
-    }
-    .brand { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+
     .card {
-      width: 100%; max-width: 520px; background: #fff;
-      border-radius: var(--radius); border: 1px solid var(--border);
-      padding: 32px 28px; box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(80,80,180,0.10);
+      text-align: center;
     }
-    .steps {
-      display: flex; align-items: center; gap: 0; margin-bottom: 28px;
+
+    .logo {
+      width: 90px;
+      margin-bottom: 18px;
     }
-    .step-dot {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700; flex-shrink: 0;
-      transition: background .3s, color .3s;
+
+    .step { display: none; }
+    .step.active { display: block; }
+
+    h2 {
+      font-size: 1.25rem;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+      font-weight: 700;
     }
-    .step-dot.active  { background: var(--black); color: #fff; }
-    .step-dot.done    { background: var(--green); color: var(--black); }
-    .step-dot.pending { background: var(--border); color: var(--gray); }
-    .step-line {
-      flex: 1; height: 2px; background: var(--border);
-      transition: background .3s;
+
+    .subtitle {
+      font-size: 0.92rem;
+      color: #666;
+      margin-bottom: 28px;
+      line-height: 1.5;
     }
-    .step-line.done { background: var(--green); }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 700; letter-spacing: .6px; text-transform: uppercase;
-      padding: 4px 10px; border-radius: 20px; margin-bottom: 20px;
+
+    /* ── ESTRELLAS CSAT ── */
+    .stars {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-direction: row-reverse;
     }
-    .badge.detractor { background: #FFEBEE; color: var(--red); }
-    .badge.neutro    { background: #FFF8E1; color: var(--amber); }
-    .badge.promotor  { background: #F1F8E9; color: #33691E; }
-    .badge .dot { width: 7px; height: 7px; border-radius: 50%; }
-    .badge.detractor .dot { background: var(--red); }
-    .badge.neutro    .dot { background: var(--amber); }
-    .badge.promotor  .dot { background: #66BB6A; }
-    .score-display { display: flex; align-items: baseline; gap: 4px; margin-bottom: 8px; }
-    .score-num { font-size: 56px; font-weight: 900; line-height: 1; letter-spacing: -3px; }
-    .score-of { font-size: 20px; color: var(--gray); font-weight: 400; }
-    h1 { font-size: 22px; font-weight: 800; margin-bottom: 8px; line-height: 1.3; }
-    .subtitle { font-size: 15px; color: var(--gray); line-height: 1.5; margin-bottom: 24px; }
-    .question-label {
-      font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 6px;
+
+    .stars input { display: none; }
+
+    .stars label {
+      font-size: 2.8rem;
+      cursor: pointer;
+      color: #ddd;
+      transition: color 0.15s;
+      line-height: 1;
     }
-    .question-sub {
-      font-size: 14px; color: var(--gray); margin-bottom: 24px; line-height: 1.5;
+
+    .stars input:checked ~ label,
+    .stars label:hover,
+    .stars label:hover ~ label {
+      color: #f5a623;
     }
-    .divider { height: 1px; background: var(--border); margin: 24px 0; }
-    label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+
+    .star-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 24px;
+      padding: 0 4px;
+    }
+
+    /* ── ESCALA NPS ── */
+    .nps-scale {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .nps-scale button {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      background: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #444;
+      transition: all 0.15s;
+    }
+
+    .nps-scale button:hover { border-color: #5b5fe8; color: #5b5fe8; }
+    .nps-scale button.selected { background: #5b5fe8; color: #fff; border-color: #5b5fe8; }
+
+    .nps-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 24px;
+    }
+
+    /* ── ESCALA CES ── */
+    .ces-scale {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .ces-scale button {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      background: #fff;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: #444;
+      transition: all 0.15s;
+    }
+
+    .ces-scale button:hover { border-color: #5b5fe8; color: #5b5fe8; }
+    .ces-scale button.selected { background: #5b5fe8; color: #fff; border-color: #5b5fe8; }
+
+    .ces-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #999;
+      margin-bottom: 24px;
+    }
+
+    /* ── FCR BOTONES ── */
+    .fcr-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .fcr-btns button {
+      flex: 1;
+      max-width: 160px;
+      padding: 14px 0;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      background: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: #444;
+      transition: all 0.15s;
+    }
+
+    .fcr-btns button:hover,
+    .fcr-btns button.selected { background: #5b5fe8; color: #fff; border-color: #5b5fe8; }
+
+    /* ── COMENTARIO ── */
     textarea {
-      width: 100%; min-height: 110px; border: 1.5px solid var(--border);
-      border-radius: 10px; padding: 12px 14px; font-size: 15px; font-family: inherit;
-      resize: vertical; outline: none; transition: border-color .2s; color: var(--black);
+      width: 100%;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 100px;
+      color: #333;
+      transition: border-color 0.15s;
+      margin-bottom: 20px;
     }
-    textarea:focus { border-color: var(--black); }
-    textarea::placeholder { color: #AAA; }
-    .char-count { font-size: 12px; color: #AAA; text-align: right; margin-top: 4px; }
-    .fcr-options { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
-    .fcr-btn {
-      display: flex; align-items: center; gap: 12px;
-      padding: 16px 18px; border-radius: 12px;
-      border: 1.5px solid var(--border); background: #fff;
-      cursor: pointer; font-size: 15px; font-weight: 600; font-family: inherit;
-      text-align: left; transition: border-color .2s, background .15s; color: var(--black);
+    textarea:focus { outline: none; border-color: #5b5fe8; }
+
+    /* ── CSAT CONFIRMACIÓN ── */
+    .csat-badge {
+      font-size: 3.5rem;
+      margin: 10px 0 16px;
     }
-    .fcr-btn:hover { border-color: var(--black); background: var(--light); }
-    .fcr-icon { font-size: 22px; flex-shrink: 0; }
-    .ces-scale { display: flex; gap: 8px; margin-top: 4px; }
-    .ces-btn {
-      flex: 1; padding: 14px 6px; border-radius: 10px;
-      border: 1.5px solid var(--border); background: #fff;
-      cursor: pointer; font-size: 18px; font-weight: 800; font-family: inherit;
-      text-align: center; transition: border-color .2s, background .15s;
-      display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--black);
+    .csat-confirm-text {
+      font-size: 1.05rem;
+      color: #444;
+      margin-bottom: 28px;
+      line-height: 1.5;
     }
-    .ces-btn:hover { border-color: var(--black); background: var(--light); }
-    .ces-label { font-size: 10px; font-weight: 500; color: var(--gray); line-height: 1.2; }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      width: 100%; padding: 15px 20px; margin-top: 16px;
-      border: none; border-radius: 10px; cursor: pointer;
-      font-size: 16px; font-weight: 700; font-family: inherit;
-      text-decoration: none; transition: opacity .15s, transform .1s;
+
+    /* ── BTN CONTINUAR ── */
+    .btn-next {
+      background: #5b5fe8;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 36px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s;
     }
-    .btn:active { transform: scale(0.98); }
-    .btn-primary { background: var(--black); color: #fff; }
-    .btn-primary:hover { opacity: .88; }
-    .btn-green  { background: var(--green); color: var(--black); }
-    .btn-green:hover { opacity: .88; }
-    .btn-outline {
-      background: transparent; color: var(--black);
-      border: 1.5px solid var(--border); margin-top: 10px;
+    .btn-next:hover { background: #4347c8; }
+    .btn-next:disabled { background: #c0c0c0; cursor: not-allowed; }
+
+    /* ── PLAY STORE ── */
+    .btn-play {
+      display: inline-block;
+      margin-top: 18px;
+      background: #1a1a2e;
+      color: #fff;
+      border-radius: 12px;
+      padding: 13px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background 0.15s;
     }
-    .btn-outline:hover { background: var(--light); }
-    .store-card {
-      display: flex; align-items: center; gap: 14px; padding: 16px;
-      border: 1.5px solid var(--border); border-radius: 12px; margin-top: 20px;
-      text-decoration: none; color: inherit; transition: border-color .2s, background .2s;
+    .btn-play:hover { background: #333; }
+
+    /* ── PROGRESS ── */
+    .progress {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      margin-bottom: 28px;
     }
-    .store-card:hover { border-color: #666; background: var(--light); }
-    .store-icon { font-size: 32px; flex-shrink: 0; }
-    .store-label { font-size: 11px; color: var(--gray); }
-    .store-name  { font-size: 15px; font-weight: 700; }
-    .stars { color: #FFA000; font-size: 16px; letter-spacing: 1px; margin-top: 2px; }
-    .success-icon {
-      width: 60px; height: 60px; border-radius: 50%; background: var(--green);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 26px; margin: 0 auto 20px;
+    .progress-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      transition: background 0.2s;
     }
-    .success-card { text-align: center; }
-    .state-msg { text-align: center; padding: 60px 20px; color: var(--gray); font-size: 15px; }
-    .spinner {
-      width: 32px; height: 32px; margin: 0 auto 16px;
-      border: 3px solid var(--border); border-top-color: var(--black);
-      border-radius: 50%; animation: spin .7s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .footer { margin-top: 28px; text-align: center; font-size: 12px; color: #AAA; max-width: 520px; }
+    .progress-dot.active { background: #5b5fe8; }
+    .progress-dot.done   { background: #a0a4f8; }
+
+    /* ── FINAL ── */
+    .checkmark { font-size: 4rem; margin-bottom: 12px; }
   </style>
 </head>
 <body>
-<div class="header">
-  <div class="logo">W.</div>
-  <span class="brand">Wayni</span>
-</div>
-<div class="card" id="card">
-  <div class="state-msg"><div class="spinner"></div>Cargando tu encuesta...</div>
-</div>
-<div class="footer">
-  Tu respuesta es confidencial y nos ayuda a mejorar.<br>
-  &copy; 2026 Wayni &middot; <a href="https://wayni.com" style="color:#AAA">wayni.com</a>
+
+<div class="card">
+  <img class="logo" src="https://i.imgur.com/yourlogo.png" alt="Wayni"
+       onerror="this.style.display='none'" />
+
+  <!-- Progreso -->
+  <div class="progress" id="progress">
+    <div class="progress-dot active" id="dot-0"></div>
+    <div class="progress-dot" id="dot-1"></div>
+    <div class="progress-dot" id="dot-2"></div>
+    <div class="progress-dot" id="dot-3"></div>
+    <div class="progress-dot" id="dot-4"></div>
+  </div>
+
+  <!-- ── PASO 0: Confirmación CSAT ── -->
+  <div class="step active" id="step-0">
+    <div class="csat-badge" id="csat-emoji">⭐</div>
+    <h2>¡Gracias por tu calificación!</h2>
+    <p class="csat-confirm-text" id="csat-confirm-text">
+      Nos dijiste que la atención fue <strong id="csat-label-text"></strong>.<br/>
+      Ahora queremos hacerte unas preguntas más.
+    </p>
+    <button class="btn-next" onclick="goStep(1)">Continuar →</button>
+  </div>
+
+  <!-- ── PASO 1: FCR ── -->
+  <div class="step" id="step-1">
+    <h2>¿Resolvimos tu consulta en el primer contacto?</h2>
+    <p class="subtitle">Sin necesidad de volver a comunicarte</p>
+    <div class="fcr-btns">
+      <button id="fcr-si" onclick="selectFCR('Si')">✅ Sí</button>
+      <button id="fcr-no" onclick="selectFCR('No')">❌ No</button>
+    </div>
+    <button class="btn-next" id="btn-fcr" onclick="goStep(2)" disabled>Continuar →</button>
+  </div>
+
+  <!-- ── PASO 2: CES ── -->
+  <div class="step" id="step-2">
+    <h2>¿Qué tan fácil fue resolver tu consulta?</h2>
+    <p class="subtitle">1 = muy difícil &nbsp;·&nbsp; 5 = muy fácil</p>
+    <div class="ces-scale">
+      <button onclick="selectCES(1)">1</button>
+      <button onclick="selectCES(2)">2</button>
+      <button onclick="selectCES(3)">3</button>
+      <button onclick="selectCES(4)">4</button>
+      <button onclick="selectCES(5)">5</button>
+    </div>
+    <div class="ces-labels">
+      <span>Muy difícil</span>
+      <span>Muy fácil</span>
+    </div>
+    <button class="btn-next" id="btn-ces" onclick="goStep(3)" disabled>Continuar →</button>
+  </div>
+
+  <!-- ── PASO 3: NPS ── -->
+  <div class="step" id="step-3">
+    <h2>¿Qué tan probable es que recomiendes Wayni a un amigo?</h2>
+    <p class="subtitle">0 = nada probable &nbsp;·&nbsp; 10 = muy probable</p>
+    <div class="nps-scale">
+      <button onclick="selectNPS(0)">0</button>
+      <button onclick="selectNPS(1)">1</button>
+      <button onclick="selectNPS(2)">2</button>
+      <button onclick="selectNPS(3)">3</button>
+      <button onclick="selectNPS(4)">4</button>
+      <button onclick="selectNPS(5)">5</button>
+      <button onclick="selectNPS(6)">6</button>
+      <button onclick="selectNPS(7)">7</button>
+      <button onclick="selectNPS(8)">8</button>
+      <button onclick="selectNPS(9)">9</button>
+      <button onclick="selectNPS(10)">10</button>
+    </div>
+    <div class="nps-labels">
+      <span>Nada probable</span>
+      <span>Muy probable</span>
+    </div>
+    <button class="btn-next" id="btn-nps" onclick="goStep(4)" disabled>Continuar →</button>
+  </div>
+
+  <!-- ── PASO 4: Comentario (condicional) ── -->
+  <div class="step" id="step-4">
+    <h2 id="comment-title">Contanos más</h2>
+    <p class="subtitle" id="comment-subtitle">Tu opinión nos ayuda a mejorar.</p>
+    <textarea id="comment-text" placeholder="Escribí tu comentario aquí..."></textarea>
+    <button class="btn-next" onclick="submitForm()">Enviar →</button>
+  </div>
+
+  <!-- ── PASO 5: Final ── -->
+  <div class="step" id="step-final">
+    <div class="checkmark">🎉</div>
+    <h2>¡Muchas gracias!</h2>
+    <p class="subtitle" id="final-message">
+      Tu opinión nos ayuda a mejorar cada día la experiencia en Wayni.
+    </p>
+    <div id="playstore-block" style="display:none">
+      <p style="font-size:0.9rem;color:#666;margin-bottom:4px;">
+        ¿Te gustaría dejarnos una reseña en Google Play?
+      </p>
+      <a class="btn-play"
+         href="https://play.google.com/store/apps/details?id=com.wayni.app"
+         target="_blank">
+        ⭐ Calificanos en Play Store
+      </a>
+    </div>
+  </div>
+
 </div>
 
 <script>
-  // v3
+  // ── Leer params de URL ──────────────────────────────────────
+  const urlParams  = new URLSearchParams(window.location.search);
+  const ticketId   = urlParams.get("ticket_id") || "";
+  const agentName  = urlParams.get("agent")     || "";
+  const csatScore  = parseInt(urlParams.get("csat")) || 0;
+
   const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyBNKOtwnhsT7kGqq_1yjWDaN37HIZM-BbpFyP8aGFmMgWuKKS84D9SI42QwbhLL_3faw/exec";
-  const STORE_URL   = "https://onelink.to/b4nrv9";
 
-  const params = new URLSearchParams(window.location.search);
-  const score  = parseInt(params.get("score"), 10);
-  const ticket = params.get("ticket") || "";
-  const agent  = params.get("agent")  || "";
+  // Estado
+  let selectedFCR = "";
+  let selectedCES = 0;
+  let selectedNPS = null;
 
-  let fcrRespuesta = null;
-  let cesScore     = null;
+  // Etiquetas CSAT
+  const csatEmojis  = ["", "😞", "😕", "😐", "😊", "🤩"];
+  const csatLabels  = ["", "muy mala", "mala", "regular", "buena", "excelente"];
 
-  function getSegmento(s) {
-    if (s <= 6) return "detractor";
-    if (s <= 8) return "neutro";
-    return "promotor";
+  // ── Init ───────────────────────────────────────────────────
+  window.onload = function() {
+    document.getElementById("csat-emoji").textContent = csatEmojis[csatScore] || "⭐";
+    document.getElementById("csat-label-text").textContent = csatLabels[csatScore] || csatScore;
+  };
+
+  // ── Navegación ─────────────────────────────────────────────
+  function goStep(n) {
+    document.querySelectorAll(".step").forEach(function(s) { s.classList.remove("active"); });
+    document.getElementById("step-" + n).classList.add("active");
+    updateProgress(n);
   }
 
-  async function enviarRespuesta(comentario) {
-    const payload = {
-      ticket_id:  ticket,
-      nps_score:  score,
-      segmento:   getSegmento(score),
-      fcr:        fcrRespuesta,
-      ces:        cesScore,
-      agent:      agent,
-      comentario: comentario || "",
-      timestamp:  new Date().toISOString()
-    };
-    try {
-      await fetch(WEBHOOK_URL, {
-        method: "POST", mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-    } catch(e) {}
-  }
-
-  const card = document.getElementById("card");
-
-  function stepsHTML(active) {
-    function dotClass(n)  { return n < active ? "done" : n === active ? "active" : "pending"; }
-    function lineClass(n) { return n < active ? "done" : ""; }
-    return `<div class="steps">
-      <div class="step-dot ${dotClass(1)}">${active > 1 ? "&#10003;" : "1"}</div>
-      <div class="step-line ${lineClass(1)}"></div>
-      <div class="step-dot ${dotClass(2)}">${active > 2 ? "&#10003;" : "2"}</div>
-      <div class="step-line ${lineClass(2)}"></div>
-      <div class="step-dot ${dotClass(3)}">3</div>
-    </div>`;
-  }
-
-  function render() {
-    if (isNaN(score) || score < 0 || score > 10) {
-      card.innerHTML = `<div class="state-msg">
-        <div style="font-size:40px;margin-bottom:12px">&#128279;</div>
-        <strong>Enlace inv&aacute;lido</strong><br>
-        Hac&eacute; click en el n&uacute;mero directamente desde el email que recibiste.
-      </div>`;
-      return;
+  function updateProgress(current) {
+    for (var i = 0; i <= 4; i++) {
+      var dot = document.getElementById("dot-" + i);
+      if (!dot) continue;
+      dot.classList.remove("active", "done");
+      if (i < current) dot.classList.add("done");
+      else if (i === current) dot.classList.add("active");
     }
-    renderStep1();
   }
 
-  function renderStep1() {
-    card.innerHTML = stepsHTML(1) + `
-      <div class="question-label">&iquest;Resolvimos tu consulta en el primer contacto?</div>
-      <div class="question-sub">Es decir, sin necesidad de volver a comunicarte con nosotros.</div>
-      <div class="fcr-options">
-        <button class="fcr-btn" onclick="selectFCR('si')">
-          <span class="fcr-icon">&#10004;</span>
-          <span>S&iacute;, lo resolvieron en el primer contacto</span>
-        </button>
-        <button class="fcr-btn" onclick="selectFCR('no')">
-          <span class="fcr-icon">&#128260;</span>
-          <span>No, tuve que volver a comunicarme</span>
-        </button>
-      </div>`;
-  }
-  function selectFCR(value) {
-    fcrRespuesta = value;
-    renderStep2();
+  // ── FCR ────────────────────────────────────────────────────
+  function selectFCR(val) {
+    selectedFCR = val;
+    document.getElementById("fcr-si").classList.toggle("selected", val === "Si");
+    document.getElementById("fcr-no").classList.toggle("selected", val === "No");
+    document.getElementById("btn-fcr").disabled = false;
   }
 
-  function renderStep2() {
-    const labels = ["", "Muy<br>dif&iacute;cil", "Dif&iacute;cil", "Neutral", "F&aacute;cil", "Muy<br>f&aacute;cil"];
-    let cesButtons = "";
-    for (let i = 1; i <= 5; i++) {
-      cesButtons += `<button class="ces-btn" onclick="selectCES(${i})">
-        <span>${i}</span>
-        <span class="ces-label">${labels[i]}</span>
-      </button>`;
+  // ── CES ────────────────────────────────────────────────────
+  function selectCES(val) {
+    selectedCES = val;
+    document.querySelectorAll(".ces-scale button").forEach(function(b, i) {
+      b.classList.toggle("selected", i + 1 === val);
+    });
+    document.getElementById("btn-ces").disabled = false;
+  }
+
+  // ── NPS ────────────────────────────────────────────────────
+  function selectNPS(val) {
+    selectedNPS = val;
+    document.querySelectorAll(".nps-scale button").forEach(function(b, i) {
+      b.classList.toggle("selected", i === val);
+    });
+    document.getElementById("btn-nps").disabled = false;
+  }
+
+  // ── Paso 4: configurar comentario según NPS ────────────────
+  function goStep(n) {
+    if (n === 4) {
+      var title    = document.getElementById("comment-title");
+      var subtitle = document.getElementById("comment-subtitle");
+      if (selectedNPS <= 6) {
+        title.textContent    = "¿Qué podríamos haber hecho mejor?";
+        subtitle.textContent = "Tu opinión llega directamente al equipo de mejora.";
+      } else if (selectedNPS >= 9) {
+        title.textContent    = "¡Nos alegra mucho! ¿Querés contarnos qué fue lo que más te gustó?";
+        subtitle.textContent = "Tu experiencia nos inspira a seguir mejorando.";
+      } else {
+        title.textContent    = "¿Hay algo que podríamos mejorar?";
+        subtitle.textContent = "Todo feedback es bienvenido.";
+      }
     }
-    card.innerHTML = stepsHTML(2) + `
-      <div class="question-label">&iquest;Qu&eacute; tan f&aacute;cil fue usar la app de Wayni?</div>
-      <div class="question-sub">Escal&aacute; del 1 (muy dif&iacute;cil) al 5 (muy f&aacute;cil).</div>
-      <div class="ces-scale">${cesButtons}</div>`;
-  }
-  function selectCES(value) {
-    cesScore = value;
-    renderStep3();
+    document.querySelectorAll(".step").forEach(function(s) { s.classList.remove("active"); });
+    document.getElementById("step-" + n).classList.add("active");
+    updateProgress(n);
   }
 
-  function renderStep3() {
-    const seg = getSegmento(score);
-    if (seg === "detractor") renderDetractor();
-    else if (seg === "neutro") renderNeutro();
-    else renderPromotor();
-  }
+  // ── Envío ──────────────────────────────────────────────────
+  function submitForm() {
+    var comment = document.getElementById("comment-text").value.trim();
 
-  function renderDetractor() {
-    card.innerHTML = stepsHTML(3) + `
-      <div class="badge detractor"><span class="dot"></span> Tu respuesta</div>
-      <div class="score-display">
-        <span class="score-num" style="color:#E53935">${score}</span>
-        <span class="score-of">/10</span>
-      </div>
-      <h1>Lamentamos que tu experiencia no haya sido la esperada</h1>
-      <p class="subtitle">Tu opini&oacute;n es muy importante para nosotros.<br>
-      &iquest;Pod&eacute;s contarnos qu&eacute; ocurri&iacute; o qu&eacute; podr&iacute;amos mejorar?</p>
-      <div class="divider"></div>
-      <label for="comentario">Tu comentario (opcional)</label>
-      <textarea id="comentario" maxlength="500" placeholder="Cont&aacute;nos qu&eacute; pas&aacute; o qu&eacute; esperabas que fuera diferente..."></textarea>
-      <div class="char-count"><span id="chars">0</span>/500</div>
-      <button class="btn btn-primary" id="send-btn" onclick="submitDetractor()">Enviar respuesta</button>
-      <button class="btn btn-outline" onclick="skipDetractor()">Prefiero no comentar</button>`;
-    document.getElementById("comentario").addEventListener("input", function() {
-      document.getElementById("chars").textContent = this.value.length;
-    });
-  }
-  async function submitDetractor() {
-    const btn = document.getElementById("send-btn");
-    btn.disabled = true; btn.textContent = "Enviando...";
-    await enviarRespuesta(document.getElementById("comentario").value.trim());
-    showGraciasDetractor();
-  }
-  async function skipDetractor() { await enviarRespuesta(""); showGraciasDetractor(); }
-  function showGraciasDetractor() {
-    card.innerHTML = `<div class="success-card">
-      <div class="success-icon">&#10003;</div>
-      <h1>Gracias por contarnos</h1>
-      <p class="subtitle" style="margin-top:10px">Tu comentario qued&aacute; registrado en nuestro equipo.<br>
-      Vamos a trabajar para mejorar tu experiencia.</p></div>`;
-  }
+    var formData = new FormData();
+    formData.append("ticket_id", ticketId);
+    formData.append("agent",     agentName);
+    formData.append("csat",      csatScore);
+    formData.append("fcr",       selectedFCR);
+    formData.append("ces",       selectedCES);
+    formData.append("nps",       selectedNPS);
+    formData.append("comment",   comment);
 
-  function renderNeutro() {
-    card.innerHTML = stepsHTML(3) + `
-      <div class="badge neutro"><span class="dot"></span> Tu respuesta</div>
-      <div class="score-display">
-        <span class="score-num" style="color:#FB8C00">${score}</span>
-        <span class="score-of">/10</span>
-      </div>
-      <h1>&iexcl;Gracias por tu respuesta!</h1>
-      <p class="subtitle">Seguimos trabajando d&iacute;a a d&iacute;a para mejorar tu experiencia.<br>
-      &iquest;Qu&eacute; nos falta para ganarnos tu 10?</p>
-      <div class="divider"></div>
-      <label for="mejora">Tu sugerencia (opcional)</label>
-      <textarea id="mejora" maxlength="500" placeholder="&quest;Qu&eacute; podr&iacute;a haber sido mejor?"></textarea>
-      <div class="char-count"><span id="chars">0</span>/500</div>
-      <button class="btn btn-primary" id="send-btn" onclick="submitNeutro()">Enviar sugerencia</button>
-      <button class="btn btn-outline" onclick="skipNeutro()">Solo dejar mi puntuaci&oacute;n</button>`;
-    document.getElementById("mejora").addEventListener("input", function() {
-      document.getElementById("chars").textContent = this.value.length;
-    });
-  }
-  async function submitNeutro() {
-    const btn = document.getElementById("send-btn");
-    btn.disabled = true; btn.textContent = "Enviando...";
-    await enviarRespuesta(document.getElementById("mejora").value.trim());
-    showGraciasNeutro();
-  }
-  async function skipNeutro() { await enviarRespuesta(""); showGraciasNeutro(); }
-  function showGraciasNeutro() {
-    card.innerHTML = `<div class="success-card">
-      <div class="success-icon">&#10003;</div>
-      <h1>&iexcl;Gracias!</h1>
-      <p class="subtitle" style="margin-top:10px">Tu opinión nos ayuda a mejorar cada d&iacute;a.<br>
-      Te invitamos a seguir usando Wayni.</p></div>`;
-  }
+    fetch(WEBHOOK_URL, { method: "POST", body: formData })
+      .catch(function() { /* silencioso: igual mostramos el final */ });
 
-  function renderPromotor() {
-    card.innerHTML = stepsHTML(3) + `
-      <div class="badge promotor"><span class="dot"></span> Tu respuesta</div>
-      <div class="score-display">
-        <span class="score-num" style="color:#33691E">${score}</span>
-        <span class="score-of">/10</span>
-      </div>
-      <h1>&iexcl;Muchas gracias por tu valoraci&oacute;n!</h1>
-      <p class="subtitle">Nos alegra saber que tu experiencia fue positiva.<br>
-      &iquest;Nos ayud&aacute;s a seguir creciendo con una rese&ntilde;a?</p>
-      <div class="divider"></div>
-      <p style="font-size:14px;font-weight:600;margin-bottom:4px">Es muy r&aacute;pido &darr;</p>
-      <a class="store-card" href="${STORE_URL}" target="_blank" onclick="enviarRespuesta('')">
-        <span class="store-icon">&#11088;</span>
-        <div>
-          <div class="store-label">Dej&aacute; tu rese&ntilde;a en</div>
-          <div class="store-name">Play Store / App Store</div>
-          <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-        </div>
-      </a>
-      <button class="btn btn-outline" style="margin-top:14px" onclick="skipPromotor()">
-        Prefiero no dejar rese&ntilde;a
-      </button>`;
-    enviarRespuesta("");
-  }
-  function skipPromotor() {
-    card.innerHTML = `<div class="success-card">
-      <div class="success-icon">&#10003;</div>
-      <h1>&iexcl;Gracias de todas formas!</h1>
-      <p class="subtitle" style="margin-top:10px">Valoramos mucho que uses Wayni.</p></div>`;
-  }
+    // Mostrar paso final
+    document.querySelectorAll(".step").forEach(function(s) { s.classList.remove("active"); });
+    document.getElementById("step-final").classList.add("active");
+    document.getElementById("progress").style.display = "none";
 
-  render();
+    if (selectedNPS >= 9) {
+      document.getElementById("playstore-block").style.display = "block";
+    }
+
+    if (selectedNPS <= 6 && comment !== "") {
+      document.getElementById("final-message").textContent =
+        "Tu comentario fue enviado al equipo de mejora. ¡Gracias por ayudarnos a crecer!";
+    }
+  }
 </script>
 </body>
 </html>
